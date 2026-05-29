@@ -1,0 +1,9 @@
+ultralytics
+opencv-contrib-python==4.8.1.78
+mediapipe==0.10.9
+deep-sort-realtime
+numpy
+pyaudio
+torch
+torchvision
+torchaudio
