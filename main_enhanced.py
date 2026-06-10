@@ -211,8 +211,8 @@ try:
         # ── 3. Person detection (GPU optimized) ──────
         detection_start = cv2.getTickCount()
         
-        with cv2.cuda_GpuMat() if hasattr(cv2, 'cuda') else None:
-            results = model(frame, classes=[0], verbose=False)
+        # YOLO handles GPU acceleration internally
+        results = model(frame, classes=[0], verbose=False)
         
         detection_time = (cv2.getTickCount() - detection_start) / cv2.getTickFrequency() * 1000
         performance_metrics['inference_times'].append(detection_time)
