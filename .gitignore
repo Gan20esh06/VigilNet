@@ -7,3 +7,7 @@ __pycache__/
 logs/
 recordings/
 violations/
+.env
+.env.local
+*.pem
+*.key

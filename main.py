@@ -10,6 +10,7 @@ from modules.object_detect import detect_objects, draw_objects
 from modules.audio_monitor import (start_audio_monitor,
                                    stop_audio_monitor,
                                    get_audio_alert)
+from modules.whatsapp_notifier import initialize_whatsapp, send_alert as send_whatsapp_alert
 
 # ── Directories ──────────────────────────────────────────
 for d in ["logs", "recordings", "violations"]:
@@ -39,6 +40,13 @@ def write_log(message):
     )
     log_file.write(f"[{now}] {message}\n")
     log_file.flush()
+
+
+# ── WhatsApp Notifier ────────────────────────────────────
+# Initialize Twilio WhatsApp integration
+whatsapp = initialize_whatsapp()
+print(f"WhatsApp Status: {whatsapp.get_status()}")
+session_id = ts  # Use session timestamp as ID
 
 
 # ── State ────────────────────────────────────────────────
@@ -298,6 +306,30 @@ while True:
             write_log(
                 f"VIOLATION — S{display_id} "
                 f"| {status} | Risk:{risk}%"
+            )
+            
+            # ── Send WhatsApp alert ──────────────────
+            # Extract event type from status
+            event_type = status.split(":")[0].strip()
+            
+            # Prepare event details
+            event_details = {
+                "event_type": event_type,
+                "camera_id": "Camera 1",
+                "session_id": session_id,
+                "confidence": f"{risk}%",
+                "description": (
+                    f"Student {display_id} detected: {status}\n"
+                    f"Attention Score: {attention}%\n"
+                    f"Risk Assessment: {risk}%"
+                )
+            }
+            
+            # Send WhatsApp notification with snapshot
+            send_whatsapp_alert(
+                frame, display_id, status,
+                risk, attention,
+                event_details
             )
 
     # ── 8. HUD top left ──────────────────────────────────
