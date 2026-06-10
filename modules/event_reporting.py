@@ -162,7 +162,7 @@ class SessionReport:
             'events': [e.to_dict() for e in self.events]
         }
         
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             json.dump(report_data, f, indent=2)
         
         return filename
@@ -334,7 +334,7 @@ class SessionReport:
 </body>
 </html>"""
         
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             f.write(html_content)
         
         return filename
@@ -348,7 +348,7 @@ class SessionReport:
         timestamp = self.start_time.strftime("%Y%m%d_%H%M%S")
         filename = f"{output_dir}/report_{self.session_id}_{timestamp}.csv"
         
-        with open(filename, 'w', newline='') as f:
+        with open(filename, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=[
                 'timestamp', 'student_id', 'event_type', 'description',
                 'confidence', 'risk_score', 'image_path'
