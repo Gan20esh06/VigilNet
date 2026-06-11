@@ -2,6 +2,7 @@ import cv2
 import datetime
 import os
 from collections import deque
+# pyrefly: ignore [missing-import]
 from ultralytics import YOLO
 from modules.face_analysis import (get_head_pose_with_lips,
                                    match_pose_to_student)

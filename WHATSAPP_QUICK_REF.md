@@ -131,26 +131,26 @@ for recipient in RECIPIENTS:
 
 ## 🔗 Important Links
 
-| Resource | URL |
-|----------|-----|
-| Twilio Console | https://console.twilio.com |
-| WhatsApp Sandbox | Console → Messaging → WhatsApp → Sandbox |
-| Account Info | Console → Account → Account Info |
-| Usage & Logs | Console → Monitor → Logs → Messages |
-| Twilio Docs | https://www.twilio.com/docs/whatsapp |
-| WhatsApp Business | https://www.whatsapp.com/business/api/ |
+| Resource          | URL                                      |
+| ----------------- | ---------------------------------------- |
+| Twilio Console    | https://console.twilio.com               |
+| WhatsApp Sandbox  | Console → Messaging → WhatsApp → Sandbox |
+| Account Info      | Console → Account → Account Info         |
+| Usage & Logs      | Console → Monitor → Logs → Messages      |
+| Twilio Docs       | https://www.twilio.com/docs/whatsapp     |
+| WhatsApp Business | https://www.whatsapp.com/business/api/   |
 
 ---
 
 ## 🚨 Common Errors & Fixes
 
-| Error Code | Problem | Fix |
-|-----------|---------|-----|
-| 21608 | Recipient not in sandbox | Send "join [code]" message |
-| 21405 | Invalid phone number | Add + and country code |
-| 21421 | No valid credentials | Check .env file exists |
-| 20003 | Auth error | Verify Account SID & Token |
-| No message | Network issue | Check internet connection |
+| Error Code | Problem                  | Fix                        |
+| ---------- | ------------------------ | -------------------------- |
+| 21608      | Recipient not in sandbox | Send "join [code]" message |
+| 21405      | Invalid phone number     | Add + and country code     |
+| 21421      | No valid credentials     | Check .env file exists     |
+| 20003      | Auth error               | Verify Account SID & Token |
+| No message | Network issue            | Check internet connection  |
 
 ---
 
@@ -225,7 +225,7 @@ type logs\violations_*.txt
 ✅ **Tip 4**: Test on a quiet exam before using live  
 ✅ **Tip 5**: Save Twilio credentials in LastPass/Vault  
 ✅ **Tip 6**: Turn on message delivery notifications  
-✅ **Tip 7**: Screenshot alerts for compliance records  
+✅ **Tip 7**: Screenshot alerts for compliance records
 
 ---
 

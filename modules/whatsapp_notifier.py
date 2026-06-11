@@ -8,7 +8,11 @@ import cv2
 import datetime
 from pathlib import Path
 from collections import defaultdict
+from dotenv import load_dotenv
 from twilio.rest import Client
+
+# Load .env from project root (two levels up from this module)
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 
 class WhatsAppNotifier:
@@ -89,6 +93,56 @@ class WhatsAppNotifier:
         
         if success:
             return filepath
+        return None
+
+    def _upload_to_public_host(self, file_path):
+        """
+        Uploads a local image file to a public temporary hosting service.
+        Returns the public URL if successful, otherwise None.
+        Attempts multiple providers for robustness.
+        """
+        import requests
+
+        # 1. Try tmpfiles.org
+        try:
+            url = "https://tmpfiles.org/api/v1/upload"
+            with open(file_path, "rb") as f:
+                response = requests.post(url, files={"file": f}, timeout=10)
+            if response.status_code == 200:
+                res_json = response.json()
+                viewer_url = res_json.get("data", {}).get("url")
+                if viewer_url and "tmpfiles.org/" in viewer_url:
+                    # Convert viewer URL to direct download URL
+                    return viewer_url.replace("tmpfiles.org/", "tmpfiles.org/dl/")
+        except Exception as e:
+            print(f"⚠️ tmpfiles.org upload failed: {e}")
+
+        # 2. Try catbox.moe as fallback
+        try:
+            url = "https://catbox.moe/user/api.php"
+            with open(file_path, "rb") as f:
+                response = requests.post(
+                    url,
+                    data={"reqtype": "fileupload"},
+                    files={"fileToUpload": f},
+                    timeout=10
+                )
+            if response.status_code == 200:
+                return response.text.strip()
+        except Exception as e:
+            print(f"⚠️ catbox.moe upload failed: {e}")
+
+        # 3. Try transfer.sh as final fallback
+        try:
+            filename = os.path.basename(file_path)
+            url = f"https://transfer.sh/{filename}"
+            with open(file_path, "rb") as f:
+                response = requests.put(url, data=f, timeout=10)
+            if response.status_code == 200:
+                return response.text.strip()
+        except Exception as e:
+            print(f"⚠️ transfer.sh upload failed: {e}")
+
         return None
     
     def _format_report(self, student_id, status, risk_score,
@@ -185,13 +239,27 @@ class WhatsAppNotifier:
                 attention_score, event_details
             )
             
-            # Send via Twilio WhatsApp
-            message = self.client.messages.create(
-                from_=f"whatsapp:{self.from_whatsapp}",
-                to=f"whatsapp:{self.to_whatsapp}",
-                body=report,
-                media_url=[f"file:///{snapshot_path.resolve()}"]  # Attach image
-            )
+            # Upload image to public hosting service
+            print("📤 Uploading violation snapshot to public host for Twilio access...")
+            media_url = self._upload_to_public_host(snapshot_path)
+            
+            if media_url:
+                print(f"✅ Snapshot uploaded: {media_url}")
+                # Send via Twilio WhatsApp with image
+                message = self.client.messages.create(
+                    from_=f"whatsapp:{self.from_whatsapp}",
+                    to=f"whatsapp:{self.to_whatsapp}",
+                    body=report,
+                    media_url=[media_url]  # Attach image
+                )
+            else:
+                print("⚠️ Failed to upload snapshot. Falling back to text-only WhatsApp alert.")
+                # Fallback: Send text-only report
+                message = self.client.messages.create(
+                    from_=f"whatsapp:{self.from_whatsapp}",
+                    to=f"whatsapp:{self.to_whatsapp}",
+                    body=report + "\n\n*(Snapshot upload failed - text-only alert)*"
+                )
             
             print(f"✅ WhatsApp alert sent to {self.to_whatsapp} "
                   f"(S{student_id}, SID: {message.sid})")
